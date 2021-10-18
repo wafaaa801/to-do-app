@@ -1,57 +1,21 @@
 import './App.css';
 import React, { useState } from 'react';
-import {
-  Card,
-  InputGroup,
-  FormControl,
-  Button,
-  Form,
-  ToggleButton,
-  ButtonGroup
-} from 'react-bootstrap';
-import { FaCheck, FaTrashAlt, FaPlus } from 'react-icons/fa';
+import { Card } from 'react-bootstrap';
+import InputForm from './InputForm';
+import ToDo from './Todo';
 
 function App() {
   
   const [todo, setTodo] = useState([
-    { text: "Grab a coffee", isDone: false },
-    { text: "Learn about React Bootstrap", isDone: false },
-    { text: "Build really cool todo app", isDone: false },
-    { text: "Submit todo app to Ever AI Technologies", isDone: false }
+    { id: 1, task: "Grab a coffee", isDone: false },
+    { id: 2, task: "Learn about React Bootstrap", isDone: false },
+    { id: 3, task: "Build really cool todo app", isDone: false },
+    { id: 4, task: "Submit todo app to Ever AI Technologies", isDone: false }
   ]);
 
-  function InputForm({addToList}) {
-    const [task, setTask] = useState("");
-
-    const handleSubmit = e => {
-      e.preventDefault(); // to prevent page from reloading when user press enter
-      if(!task) return;
-      addToList(task);
-      setTask("");
-    }
-
-    return(
-      // Because InputGroup from React bootstrap doesn't have an onsubmit event,
-      // so we wrap it in <Form /> component to enable the 
-      // handleSubmit function
-      <Form onSubmit={handleSubmit}>
-        <InputGroup className="mb-3">
-          <FormControl
-            value={task}
-            placeholder="Enter your task"
-            aria-label="Enter your task"
-            aria-describedby="basic-addon1"
-            onChange={e => setTask(e.target.value)}
-            
-          />
-          <Button className="btn btn-primary btn-large centerButton" type="submit"><FaPlus/></Button>
-        </InputGroup>
-      </Form>
-    )
-  }
   // add new item into the todo array
   const addToList = text => {
-    const newList = [...todo, {text}];
+    const newList = [...todo, {id: todo.length + 1, task: text, isDone: false}];
     setTodo(newList);
   }
 
@@ -63,33 +27,19 @@ function App() {
   }
 
   // update status of completion of a task in the list
-  const updateDone = index => {
-    const newList = [...todo];
-    newList[index].isDone = true;
-    setTodo(newList);
-    console.log(todo.isDone)
-  }
+  const updateDone = (id) => {
+    let mapped = todo.map(task => {
+      return task.id === Number(id) ? { ...task, isDone: !task.isDone } : { ...task};
+    });
+    setTodo(mapped);
+  };
 
-  function ToDo({ todo, index, removeFromList, updateDone }) {
-    return(
-      <InputGroup className="mb-3">
-        <FormControl
-          readOnly
-          placeholder={todo.text}
-          aria-label={todo.text}
-          aria-describedby="basic-addon1"
-          style={{ textDecoration: todo.isDone ? "line-through" : "" }}
-        />
-        <ButtonGroup>
-        <ToggleButton 
-          variant="success"
-          onClick={() => updateDone(index)}
-          style={{ backgroundColor: todo.isDone ? 'grey' : '', color: "white"}}><FaCheck />
-        </ToggleButton>
-        </ButtonGroup>
-        <Button className="btn btn-danger btn-large centerButton" onClick={() => removeFromList(index)}><FaTrashAlt /></Button>
-      </InputGroup>
-    )
+  // to count the number of completed task; isDone == true
+  const completeCount = () => {
+    var numCompleted = todo.reduce(function(count, item) {
+      return count + (item["isDone"] === true ? 1 : 0);
+    }, 0);
+    return numCompleted;
   }
 
   return (
@@ -111,7 +61,7 @@ function App() {
           )
         })
       }
-      <Card.Title>Total completed task: {updateDone.length}</Card.Title>
+      <Card.Title style={{ textAlign: 'right', fontSize: 12 }}>Total number of task completed: {completeCount()}</Card.Title>
     </Card.Body>
   </Card>
   );
